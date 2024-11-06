@@ -142,10 +142,16 @@ export default class Paginator<Entity extends ObjectLiteral> {
     let query = '';
     this.paginationKeys.forEach((key) => {
       params[key] = cursors[key];
-      where.orWhere(`${query}${this.alias}.${key} ${operator} :${key}`, params);
-      query = `${query}${this.alias}.${key} = :${key} AND `;
+      if (this.getEntityPropertyType(key) === 'date') {
+        where.orWhere(`${query}date_trunc('milliseconds', ${this.alias}.${key}) ${operator} :${key}`, params);
+        query = `${query}date_trunc('milliseconds', ${this.alias}.${key}) = :${key} AND `;
+      } else {
+        where.orWhere(`${query}${this.alias}.${key} ${operator} :${key}`, params);
+        query = `${query}${this.alias}.${key} = :${key} AND `;
+      }
     });
   }
+
 
   private getOperator(): string {
     if (this.hasAfterCursor()) {
