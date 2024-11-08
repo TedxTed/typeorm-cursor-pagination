@@ -131,7 +131,11 @@ export default class Paginator<Entity extends ObjectLiteral> {
     }
 
     clonedBuilder.take(this.limit + 1);
-    clonedBuilder.orderBy(this.buildOrder());
+    // clonedBuilder.orderBy(this.buildOrder());
+    const paginationKeyOrders = this.buildOrder();
+    Object.keys(paginationKeyOrders).forEach(orderKey => {
+      clonedBuilder.addOrderBy(orderKey, paginationKeyOrders[orderKey] === 'ASC' ? 'ASC' : 'DESC')
+    });
 
     return clonedBuilder;
   }
